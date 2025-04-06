@@ -65,7 +65,6 @@
             color: var(--dark-color);
             margin-top: 0.5rem;
         }
-        
         /* Controls Styles */
         .controls {
             background-color: white;
@@ -74,10 +73,21 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .filter-controls {
+            display: flex;
             flex-wrap: wrap;
+            gap: 1rem;
             justify-content: space-between;
             align-items: center;
-            gap: 1rem;
+        }
+        
+        .button-controls {
+            display: flex;
+            justify-content: flex-end;
         }
         
         .controls select, .controls button {
@@ -110,6 +120,113 @@
         
         .btn-print:hover {
             background-color: #2980b9 !important;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: black;
+        }
+        
+        .print-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .option-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .option-group h4 {
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .option-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .print-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6 !important;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color) !important;
+        }
+        
+        .print-buttons button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        /* Full Schedule View Styles */
+        .full-schedule {
+            margin-top: 1.5rem;
+        }
+        
+        .date-divider {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1rem;
+            margin: 2rem 0 1rem 0;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .full-schedule .schedule-table th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         /* Tabs Styles */
@@ -553,22 +670,63 @@
         </div>
         
         <div class="controls">
-            <select id="dancer-filter">
-                <option value="all">All Dancers</option>
-                <!-- Dancer options will be populated by JavaScript -->
-            </select>
+            <div class="filter-controls">
+                <select id="dancer-filter">
+                    <option value="all">All Dancers</option>
+                    <!-- Dancer options will be populated by JavaScript -->
+                </select>
+                
+                <select id="activity-filter">
+                    <option value="all">All Activities</option>
+                    <option value="Performance">Performances Only</option>
+                    <option value="Workshop">Workshops Only</option>
+                    <option value="Meeting">Meetings Only</option>
+                    <option value="Award">Awards Only</option>
+                </select>
+                
+                <select id="view-mode">
+                    <option value="days">View by Days</option>
+                    <option value="full">Full Schedule</option>
+                </select>
+            </div>
             
-            <select id="activity-filter">
-                <option value="all">All Activities</option>
-                <option value="Performance">Performances Only</option>
-                <option value="Workshop">Workshops Only</option>
-                <option value="Meeting">Meetings Only</option>
-                <option value="Award">Awards Only</option>
-            </select>
-            
-            <button class="btn-print" onclick="window.print()">
-                <i class="fas fa-print"></i> Print Schedule
-            </button>
+            <div class="button-controls">
+                <button class="btn-print" id="export-pdf">
+                    <i class="fas fa-file-pdf"></i> Export PDF/Print
+                </button>
+            </div>
+        </div>
+
+        <!-- PDF Print Options Modal -->
+        <div id="print-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>Export Schedule Options</h3>
+                <div class="print-options">
+                    <div class="option-group">
+                        <h4>Content Options</h4>
+                        <label><input type="checkbox" id="print-include-header" checked> Include Header</label>
+                        <label><input type="checkbox" id="print-include-legend" checked> Include Legend</label>
+                        <label><input type="checkbox" id="print-include-instructions" checked> Include Instructions</label>
+                    </div>
+                    
+                    <div class="option-group">
+                        <h4>Layout Options</h4>
+                        <label><input type="radio" name="print-layout" id="print-compact" value="compact"> Compact View</label>
+                        <label><input type="radio" name="print-layout" id="print-detailed" value="detailed" checked> Detailed View</label>
+                    </div>
+                    
+                    <div class="option-group">
+                        <h4>Page Options</h4>
+                        <label><input type="checkbox" id="print-page-numbers" checked> Show Page Numbers</label>
+                        <label><input type="checkbox" id="print-auto-break" checked> Optimize Page Breaks</label>
+                    </div>
+                </div>
+                <div class="print-buttons">
+                    <button id="preview-pdf" class="btn-secondary"><i class="fas fa-eye"></i> Preview</button>
+                    <button id="generate-pdf" class="btn-primary"><i class="fas fa-print"></i> Print/Export</button>
+                </div>
+            </div>
         </div>
         
         <div class="time-instructions">
@@ -1319,6 +1477,9 @@
             
             // Initialize the schedule display
             initializeSchedule();
+            
+            // Setup export PDF modal functionality
+            initializePrintModal();
         });
 
         // Function to initialize the schedule display
@@ -1347,6 +1508,296 @@
             // Setup event listeners for filters
             document.getElementById('dancer-filter').addEventListener('change', updateScheduleView);
             document.getElementById('activity-filter').addEventListener('change', updateScheduleView);
+            document.getElementById('view-mode').addEventListener('change', handleViewModeChange);
+            
+            // Setup print button
+            document.getElementById('export-pdf').addEventListener('click', openPrintModal);
+        }
+        
+        // Function to initialize the print modal
+        function initializePrintModal() {
+            const modal = document.getElementById('print-modal');
+            const closeBtn = document.querySelector('.close-modal');
+            const previewBtn = document.getElementById('preview-pdf');
+            const generateBtn = document.getElementById('generate-pdf');
+            
+            // Close modal when clicking the X
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Preview PDF
+            previewBtn.addEventListener('click', () => {
+                applyPrintStyles(true);
+                setTimeout(() => {
+                    window.print();
+                    restorePrintStyles();
+                }, 300);
+            });
+            
+            // Generate PDF
+            generateBtn.addEventListener('click', () => {
+                applyPrintStyles(false);
+                setTimeout(() => {
+                    window.print();
+                    restorePrintStyles();
+                }, 300);
+            });
+        }
+        
+        // Open print modal
+        function openPrintModal() {
+            document.getElementById('print-modal').style.display = 'block';
+        }
+        
+        // Apply print styles based on selected options
+        function applyPrintStyles(isPreview) {
+            const includeHeader = document.getElementById('print-include-header').checked;
+            const includeLegend = document.getElementById('print-include-legend').checked;
+            const includeInstructions = document.getElementById('print-include-instructions').checked;
+            const isCompact = document.getElementById('print-compact').checked;
+            const showPageNumbers = document.getElementById('print-page-numbers').checked;
+            const optimizeBreaks = document.getElementById('print-auto-break').checked;
+            
+            // Create a style element to override print styles
+            const styleEl = document.createElement('style');
+            styleEl.id = 'custom-print-styles';
+            
+            let styles = `
+                @media print {
+                    body { background-color: white; }
+                    .container { max-width: 100%; padding: 0; }
+                    .controls, .modal, .status { display: none !important; }
+                    
+                    ${includeHeader ? '.header { display: block !important; }' : 'header { display: none !important; }'}
+                    ${includeLegend ? '.legend { display: flex !important; }' : '.legend { display: none !important; }'}
+                    ${includeInstructions ? '.time-instructions { display: block !important; }' : '.time-instructions { display: none !important; }'}
+                    
+                    ${isCompact ? '.schedule-table td, .schedule-table th { padding: 3pt !important; font-size: 9pt !important; }' : ''}
+                    ${showPageNumbers ? '@page { margin: 0.5in; @bottom-center { content: "Page " counter(page) " of " counter(pages); } }' : ''}
+                    ${optimizeBreaks ? '.schedule-container { page-break-inside: avoid; } h3 { page-break-before: always; }' : ''}
+                    
+                    /* Common print styles */
+                    .schedule-table { width: 100%; border-collapse: collapse; }
+                    footer { position: fixed; bottom: 0; width: 100%; font-size: 8pt; }
+                }
+            `;
+            
+            styleEl.textContent = styles;
+            document.head.appendChild(styleEl);
+            
+            // Store the current view state to restore later
+            window._printViewState = {
+                viewMode: document.getElementById('view-mode').value
+            };
+            
+            // Force full schedule view for printing if not in preview mode
+            if (!isPreview && window._printViewState.viewMode !== 'full') {
+                document.getElementById('view-mode').value = 'full';
+                handleViewModeChange();
+            }
+        }
+        
+        // Restore original view after printing
+        function restorePrintStyles() {
+            // Remove custom print styles
+            const styleEl = document.getElementById('custom-print-styles');
+            if (styleEl) {
+                document.head.removeChild(styleEl);
+            }
+            
+            // Restore previous view mode
+            if (window._printViewState && window._printViewState.viewMode !== document.getElementById('view-mode').value) {
+                document.getElementById('view-mode').value = window._printViewState.viewMode;
+                handleViewModeChange();
+            }
+        }
+        
+        // Handle view mode change (day view vs full schedule)
+        function handleViewModeChange() {
+            const viewMode = document.getElementById('view-mode').value;
+            const dayTabs = document.querySelector('.day-tabs');
+            
+            if (viewMode === 'full') {
+                // Hide day tabs when in full schedule mode
+                dayTabs.style.display = 'none';
+                // Show complete schedule
+                displayFullSchedule();
+            } else {
+                // Show day tabs when in day view mode
+                dayTabs.style.display = 'flex';
+                // Show the active day
+                const activeDay = document.querySelector('.day-tab.active')?.textContent || 'Friday';
+                switchDay(activeDay);
+            }
+        }
+        
+        // Display full schedule with all days
+        function displayFullSchedule() {
+            const scheduleView = document.getElementById('schedule-view');
+            
+            // Get current filters
+            const selectedDancer = document.getElementById('dancer-filter').value;
+            const selectedActivity = document.getElementById('activity-filter').value;
+            
+            // Filter data for dancer and activity type
+            let filteredData = [...scheduleData]; // Clone the array
+            
+            if (selectedDancer !== 'all') {
+                filteredData = filteredData.filter(item =>
+                    item['Dancer Names'] && item['Dancer Names'].includes(selectedDancer)
+                );
+            }
+            
+            if (selectedActivity !== 'all') {
+                filteredData = filteredData.filter(item =>
+                    item['Activity Type'] && item['Activity Type'].includes(selectedActivity)
+                );
+            }
+            
+            // Sort by date and time
+            filteredData.sort((a, b) => {
+                // First compare days (Friday, Saturday, Sunday)
+                const days = ['Friday', 'Saturday', 'Sunday'];
+                const dayComparison = days.indexOf(a.Day) - days.indexOf(b.Day);
+                if (dayComparison !== 0) return dayComparison;
+                
+                // If same day, compare time
+                const aTime = convertTimeToMinutes(a['Est. Performance Time']);
+                const bTime = convertTimeToMinutes(b['Est. Performance Time']);
+                return aTime - bTime;
+            });
+            
+            // Group by day
+            const scheduleByDay = {};
+            filteredData.forEach(item => {
+                if (!scheduleByDay[item.Day]) {
+                    scheduleByDay[item.Day] = [];
+                }
+                scheduleByDay[item.Day].push(item);
+            });
+            
+            // Create HTML for full schedule
+            let html = '<div class="full-schedule">';
+            
+            if (Object.keys(scheduleByDay).length === 0) {
+                html = '<div class="no-results">No activities match your filter criteria.</div>';
+            } else {
+                // Iterate through days in order
+                ['Friday', 'Saturday', 'Sunday'].forEach(day => {
+                    if (scheduleByDay[day] && scheduleByDay[day].length > 0) {
+                        const date = scheduleByDay[day][0].Date;
+                        
+                        html += `<div class="date-divider">${day}, ${date}</div>`;
+                        
+                        // Group by competition session within each day
+                        const sessions = {};
+                        scheduleByDay[day].forEach(item => {
+                            const session = item['Competition Session'];
+                            if (!sessions[session]) {
+                                sessions[session] = [];
+                            }
+                            sessions[session].push(item);
+                        });
+                        
+                        // Create table for each session
+                        Object.entries(sessions).forEach(([session, items]) => {
+                            html += `
+                                <h3>${session}</h3>
+                                <div class="schedule-container">
+                                    <table class="schedule-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Routine #</th>
+                                                <th>Routine Name</th>
+                                                <th>Category</th>
+                                                <th>Dancers</th>
+                                                <th>Props</th>
+                                                <th>Arrival</th>
+                                                <th>Run-Through</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            
+                            items.forEach(item => {
+                                // Determine row class
+                                let rowClass = '';
+                                const category = item.Category.toLowerCase();
+                                const activityType = item['Activity Type'].toLowerCase();
+                                
+                                if (activityType === 'workshop') rowClass = 'workshop';
+                                else if (activityType === 'meeting') rowClass = 'meeting';
+                                else if (activityType.includes('award')) rowClass = 'awards';
+                                else if (category.includes('solo')) rowClass = 'solo-routine';
+                                else if (category.includes('duo') || category.includes('trio')) rowClass = 'duo-trio-routine';
+                                else rowClass = 'group-routine';
+                                
+                                // Add highlighted class if this dancer is selected
+                                if (selectedDancer !== 'all' && item['Dancer Names'].includes(selectedDancer)) {
+                                    rowClass += ' highlighted-dancer';
+                                }
+                                
+                                // Calculate arrival and run-through times
+                                const perfTime = item['Est. Performance Time'];
+                                const arrivalTime = calcTimeOffset(perfTime, -120); // 2 hours before
+                                const runThroughTime = calcTimeOffset(perfTime, -45); // 45 min before
+                                
+                                // Props indicator
+                                const hasProps = item.Props.toLowerCase().includes('yes');
+                                const propsClass = hasProps ? 'props-yes' : 'props-no';
+                                const propsText = hasProps ? 'Yes' : 'No';
+                                
+                                html += `
+                                    <tr class="${rowClass}">
+                                        <td class="time-column performance-time" data-label="Time">${perfTime}</td>
+                                        <td data-label="Routine #">${item['Routine Number']}</td>
+                                        <td data-label="Routine">${item['Routine Name']}</td>
+                                        <td data-label="Category">${item.Category}</td>
+                                        <td data-label="Dancers">${item['Dancer Names']}</td>
+                                        <td data-label="Props"><span class="props-indicator ${propsClass}">${propsText}</span></td>
+                                        <td class="time-column arrival-time" data-label="Arrival">${arrivalTime}</td>
+                                        <td class="time-column run-through-time" data-label="Run-Through">${runThroughTime}</td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                        });
+                    }
+                });
+            }
+            
+            html += '</div>';
+            scheduleView.innerHTML = html;
+        }
+        
+        // Convert time to minutes for sorting
+        function convertTimeToMinutes(timeStr) {
+            const [hourStr, minuteStr] = timeStr.split(':');
+            let hour = parseInt(hourStr);
+            const minute = parseInt(minuteStr);
+            const isPM = minuteStr.includes('PM');
+            
+            if (isPM && hour !== 12) {
+                hour += 12;
+            } else if (!isPM && hour === 12) {
+                hour = 0;
+            }
+            
+            return hour * 60 + minute;
         }
         
         // Function to create the legend
