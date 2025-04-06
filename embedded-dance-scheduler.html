@@ -729,16 +729,6 @@
             </div>
         </div>
         
-        <div class="time-instructions">
-            <h3>Schedule Timing Information</h3>
-            <ul>
-                <li><strong>Arrival Time:</strong> Please arrive 2 hours before performance time with hair and makeup done, ready to stretch and warm up.</li>
-                <li><strong>Run-through Time:</strong> Your routine will be run through 45 minutes before performance time.</li>
-                <li><strong>Props:</strong> If your routine requires props, please have them ready at run-through time.</li>
-                <li><strong>Multiple Performances:</strong> If you have multiple performances in a session, stay prepared between routines.</li>
-            </ul>
-        </div>
-        
         <div class="day-tabs">
             <!-- Day tabs will be populated by JavaScript -->
         </div>
@@ -1748,8 +1738,13 @@
                                 
                                 // Calculate arrival and run-through times
                                 const perfTime = item['Est. Performance Time'];
-                                const arrivalTime = calcTimeOffset(perfTime, -120); // 2 hours before
-                                const runThroughTime = calcTimeOffset(perfTime, -45); // 45 min before
+                                const arrivalTime = calcTimeOffset(perfTime, -150); // 2 hours and 30 minutes before
+                                
+                                // Calculate optimal run-through time
+                                // Find the time for run-through that doesn't conflict with other performances
+                                // Each routine takes about 5 min to perform, run-through needs 15 min
+                                const baseRunThroughMinutes = 60; // Start with 1 hour before as baseline
+                                const runThroughTime = calcOptimalRunThroughTime(perfTime, items, baseRunThroughMinutes);
                                 
                                 // Props indicator
                                 const hasProps = item.Props.toLowerCase().includes('yes');
@@ -1947,8 +1942,12 @@
                         
                         // Calculate arrival and run-through times
                         const perfTime = item['Est. Performance Time'];
-                        const arrivalTime = calcTimeOffset(perfTime, -120); // 2 hours before
-                        const runThroughTime = calcTimeOffset(perfTime, -45); // 45 min before
+                        const arrivalTime = calcTimeOffset(perfTime, -150); // 2 hours and 30 minutes before
+                        
+                        // Calculate optimal run-through time
+                        // Find the time for run-through that doesn't conflict with other performances
+                        const baseRunThroughMinutes = 60; // Start with 1 hour before as baseline
+                        const runThroughTime = calcOptimalRunThroughTime(perfTime, items, baseRunThroughMinutes);
                         
                         // Props indicator
                         const hasProps = item.Props.toLowerCase().includes('yes');
@@ -2013,6 +2012,74 @@
             const newAmPm = newHour24 < 12 ? 'AM' : 'PM';
             
             return `${newHour}:${newMinute.toString().padStart(2, '0')} ${newAmPm}`;
+        }
+
+        // Function to calculate optimal run-through time based on performance schedule
+        function calcOptimalRunThroughTime(perfTime, allItems, baseMinutesBefore) {
+            // Convert performance time to minutes for calculations
+            const perfTimeMinutes = convertTimeToMinutes(perfTime);
+            
+            // Start with the ideal run-through time (baseMinutesBefore before performance)
+            let runThroughMinutes = perfTimeMinutes - baseMinutesBefore;
+            
+            // Sort all items by performance time
+            const sortedItems = [...allItems].sort((a, b) => {
+                return convertTimeToMinutes(a['Est. Performance Time']) - convertTimeToMinutes(b['Est. Performance Time']);
+            });
+            
+            // Find the index of the current performance
+            const currentIndex = sortedItems.findIndex(item => item['Est. Performance Time'] === perfTime);
+            
+            // Function to check if a given run-through time would conflict with any performances
+            const hasConflict = (runThroughMin) => {
+                // Each performance takes about 5 minutes, each run-through needs 15 minutes
+                const runThroughStart = runThroughMin;
+                const runThroughEnd = runThroughMin + 15; // 15 min for run-through
+                
+                return sortedItems.some((item, index) => {
+                    // Skip checking against self
+                    if (index === currentIndex) return false;
+                    
+                    const itemPerfTime = convertTimeToMinutes(item['Est. Performance Time']);
+                    const itemPerfEnd = itemPerfTime + 5; // 5 min for performance
+                    
+                    // Check if run-through overlaps with this performance
+                    return (runThroughStart < itemPerfEnd && runThroughEnd > itemPerfTime);
+                });
+            };
+            
+            // If the initial proposed time conflicts, search for a better time
+            if (hasConflict(runThroughMinutes)) {
+                // Try earlier times first in 5-minute increments, up to 30 minutes earlier
+                for (let offset = 5; offset <= 30; offset += 5) {
+                    const earlierTime = runThroughMinutes - offset;
+                    if (earlierTime >= perfTimeMinutes - 90 && !hasConflict(earlierTime)) { // Don't go more than 90 min before
+                        runThroughMinutes = earlierTime;
+                        break;
+                    }
+                    
+                    // Also try later times (but not too close to performance)
+                    const laterTime = runThroughMinutes + offset;
+                    if (laterTime <= perfTimeMinutes - 20 && !hasConflict(laterTime)) { // At least 20 min before performance
+                        runThroughMinutes = laterTime;
+                        break;
+                    }
+                }
+                
+                // If still conflicting, just use 30 minutes before as fallback
+                if (hasConflict(runThroughMinutes)) {
+                    runThroughMinutes = perfTimeMinutes - 30;
+                }
+            }
+            
+            // Convert back to time string
+            let newHour24 = Math.floor(runThroughMinutes / 60);
+            let newMinutes = runThroughMinutes % 60;
+            let newHour = newHour24 % 12;
+            if (newHour === 0) newHour = 12;
+            const newAmPm = newHour24 < 12 ? 'AM' : 'PM';
+            
+            return `${newHour}:${newMinutes.toString().padStart(2, '0')} ${newAmPm}`;
         }
 </script>
 <script src="dancers.js"></script>
