@@ -2382,6 +2382,37 @@ function finishTimeEditing(cell, input, routineNumber, timeType, perfTime) {
     }
 }
 
+// Function to check if we're on a server that supports PHP
+function isServerEnvironment() {
+    // Check if we're on an http/https URL (not file://)
+    return window.location.protocol.indexOf('http') === 0;
+}
+
+// Function to try saving to the server with fallback to download
+async function saveToServer(jsonData) {
+    try {
+        // Try to save using the PHP script
+        const response = await fetch('save-schedule.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonData
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Server error');
+        }
+        
+        const result = await response.json();
+        return { success: true, message: result.message };
+    } catch (error) {
+        console.warn('Server save failed:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 // Function to save all changes
 function saveChanges() {
     if (modifiedEntries.length === 0) {
@@ -2389,12 +2420,60 @@ function saveChanges() {
         return;
     }
     
-    // In a real application, this would send data to a server
-    // For this demo, we'll just show a success message
-    alert(`Successfully saved ${modifiedEntries.length} schedule changes!`);
+    // Create a JSON file with the updated schedule data
+    const jsonContent = JSON.stringify(scheduleData, null, 2);
+    
+    // Check if we're in a server environment
+    if (isServerEnvironment()) {
+        // Try to save to the server
+        const statusMsg = document.getElementById('status-message');
+        statusMsg.textContent = 'Saving changes to server...';
+        
+        saveToServer(jsonContent).then(result => {
+            if (result.success) {
+                // Server save was successful
+                alert(`Successfully saved ${modifiedEntries.length} schedule changes to the server!`);
+                
+                // Exit edit mode
+                exitEditMode(true);
+                
+                // Update status message
+                statusMsg.textContent = `Schedule updated successfully! (${modifiedEntries.length} changes saved to server)`;
+            } else {
+                // Server save failed, fall back to download
+                console.warn('Server save failed, falling back to download');
+                downloadJsonFile(jsonContent, modifiedEntries.length);
+            }
+        });
+    } else {
+        // Not on a server, just download the file
+        downloadJsonFile(jsonContent, modifiedEntries.length);
+    }
+}
+
+// Function to download the JSON file
+function downloadJsonFile(jsonContent, numChanges) {
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create a download link
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = 'dancer-schedule.json';
+    
+    // Trigger download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    
+    // Cleanup the URL object
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+    
+    // Show success message
+    alert(`Successfully saved ${numChanges} schedule changes! The updated JSON file has been downloaded. Replace your existing dancer-schedule.json file with this one.`);
     
     // Exit edit mode
-    exitEditMode(true); // Save changes
+    exitEditMode(true);
     
     // Update status message
     const statusMsg = document.getElementById('status-message');

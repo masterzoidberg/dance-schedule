@@ -1,10 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // We'll use embedded schedule data to avoid CORS issues when loading from local file system
-    const scheduleData = getDanceScheduleData();
-    processScheduleData(scheduleData);
+    // Try to fetch the data from the JSON file first
+    fetch('dancer-schedule.json')
+        .then(response => response.json())
+        .then(data => {
+            console.log("Successfully loaded schedule data from JSON file");
+            processScheduleData(data);
+        })
+        .catch(error => {
+            console.warn("Error loading from JSON file, using embedded data as fallback:", error);
+            // Fall back to embedded data if fetch fails (e.g., when running locally with CORS issues)
+            const scheduleData = getDanceScheduleData();
+            processScheduleData(scheduleData);
+        });
 });
 
-// Function to get schedule data - embedded to avoid CORS issues with local files
+// Fallback schedule data - only used if JSON file cannot be loaded
 function getDanceScheduleData() {
     return [
         {
