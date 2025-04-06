@@ -349,6 +349,7 @@
             .controls {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 0.5rem;
             }
             
             .day-tab {
@@ -361,6 +362,10 @@
                 font-size: 0.9rem;
             }
             
+            .schedule-table td {
+                word-break: break-word;
+            }
+            
             header h1 {
                 font-size: 1.5rem;
             }
@@ -371,6 +376,115 @@
             
             .time-instructions h3 {
                 font-size: 1.2rem;
+            }
+            
+            /* Highlight award ceremonies more on mobile */
+            .schedule-table tr.awards {
+                font-weight: bold;
+                font-size: 1em;
+            }
+            
+            /* Better spacing for mobile */
+            .schedule-container {
+                margin-bottom: 1rem;
+            }
+            
+            /* Improve legends display on mobile */
+            .legend {
+                gap: 5px;
+            }
+            
+            .legend-item {
+                font-size: 0.8rem;
+                margin-right: 5px;
+            }
+        }
+        
+        /* Additional styles for very small screens (phones) */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.5rem;
+            }
+            
+            .day-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+                padding-bottom: 10px;
+                margin-bottom: 0.5rem;
+            }
+            
+            .day-tab {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+                display: inline-block;
+            }
+            
+            /* Stack the important columns for better readability */
+            .schedule-table, .schedule-table tbody {
+                display: block;
+                width: 100%;
+            }
+            
+            .schedule-table thead {
+                display: none; /* Hide table headers */
+            }
+            
+            .schedule-table tr {
+                display: block;
+                border: 1px solid #ddd;
+                margin-bottom: 0.5rem;
+                padding: 0.5rem;
+                border-radius: 4px;
+            }
+            
+            .schedule-table td {
+                display: block;
+                text-align: right;
+                padding: 0.25rem 0.5rem;
+                position: relative;
+                min-height: 20px;
+            }
+            
+            /* Add labels for each cell */
+            .schedule-table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0.5rem;
+                font-weight: bold;
+                text-align: left;
+            }
+            
+            /* Specific styling for main items */
+            .schedule-table td.performance-time {
+                font-size: 1.1rem;
+                text-align: center;
+                border-bottom: 1px solid #ddd;
+                margin-bottom: 0.25rem;
+                padding-bottom: 0.5rem;
+                color: var(--primary-color);
+            }
+            
+            .quick-reference, .time-instructions {
+                padding: 0.75rem;
+            }
+            
+            /* Make award cells very clear */
+            .schedule-table tr.awards td {
+                text-align: center;
+                font-weight: bold;
+            }
+            
+            .schedule-table tr.awards td:before {
+                position: relative;
+                display: block;
+                text-align: center;
+                margin-bottom: 0.25rem;
+            }
+            
+            /* Adjust fonts for better readability */
+            body {
+                font-size: 14px;
             }
         }
         
@@ -1392,14 +1506,14 @@
                         
                         html += `
                             <tr class="${rowClass}">
-                                <td class="time-column performance-time">${perfTime}</td>
-                                <td>${item['Routine Number']}</td>
-                                <td>${item['Routine Name']}</td>
-                                <td>${item.Category}</td>
-                                <td>${item['Dancer Names']}</td>
-                                <td><span class="props-indicator ${propsClass}">${propsText}</span></td>
-                                <td class="time-column arrival-time">${arrivalTime}</td>
-                                <td class="time-column run-through-time">${runThroughTime}</td>
+                                <td class="time-column performance-time" data-label="Time">${perfTime}</td>
+                                <td data-label="Routine #">${item['Routine Number']}</td>
+                                <td data-label="Routine">${item['Routine Name']}</td>
+                                <td data-label="Category">${item.Category}</td>
+                                <td data-label="Dancers">${item['Dancer Names']}</td>
+                                <td data-label="Props"><span class="props-indicator ${propsClass}">${propsText}</span></td>
+                                <td class="time-column arrival-time" data-label="Arrival">${arrivalTime}</td>
+                                <td class="time-column run-through-time" data-label="Run-Through">${runThroughTime}</td>
                             </tr>
                         `;
                     });
