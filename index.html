@@ -157,6 +157,34 @@
             color: black;
         }
         
+        /* Password Protection Styles */
+        .password-input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .error-message.visible {
+            display: block;
+        }
+        
         /* Edit Mode Styles */
         .btn-edit {
             background-color: #27ae60 !important;
@@ -766,7 +794,7 @@
 
         <!-- Edit Controls -->
         <div class="edit-controls" id="edit-controls">
-            <div class="edit-message">Edit Mode: Click on performance times to edit them</div>
+            <div class="edit-message">Edit Mode: Click on <strong>Arrival</strong> or <strong>Run-Through</strong> times to customize them</div>
             <button id="save-changes" class="btn-save">
                 <i class="fas fa-save"></i> Save Changes
             </button>
@@ -775,6 +803,20 @@
             </button>
         </div>
 
+        <!-- Password Modal for Edit Access -->
+        <div id="password-modal" class="modal">
+            <div class="modal-content">
+                <h3>Enter Password</h3>
+                <p>Please enter the password to edit the schedule:</p>
+                <input type="password" id="edit-password" class="password-input" placeholder="Password">
+                <div class="modal-buttons">
+                    <button id="submit-password" class="btn-primary">Submit</button>
+                    <button id="cancel-password" class="btn-secondary">Cancel</button>
+                </div>
+                <p id="password-error" class="error-message"></p>
+            </div>
+        </div>
+        
         <!-- PDF Print Options Modal -->
         <div id="print-modal" class="modal">
             <div class="modal-content">
@@ -1816,13 +1858,25 @@
                                 
                                 // Calculate arrival and run-through times
                                 const perfTime = item['Est. Performance Time'];
-                                const arrivalTime = calcTimeOffset(perfTime, -150); // 2 hours and 30 minutes before
                                 
-                                // Calculate optimal run-through time
-                                // Find the time for run-through that doesn't conflict with other performances
-                                // Each routine takes about 5 min to perform, run-through needs 15 min
-                                const baseRunThroughMinutes = 60; // Start with 1 hour before as baseline
-                                const runThroughTime = calcOptimalRunThroughTime(perfTime, items, baseRunThroughMinutes);
+                                // Check if there's a custom arrival offset
+                                let arrivalTime;
+                                if (item['Custom Arrival Offset'] !== undefined) {
+                                    arrivalTime = calcTimeOffset(perfTime, item['Custom Arrival Offset']);
+                                } else {
+                                    arrivalTime = calcTimeOffset(perfTime, -150); // Default: 2 hours and 30 minutes before
+                                }
+                                
+                                // Check if there's a custom run-through offset
+                                let runThroughTime;
+                                if (item['Custom RunThrough Offset'] !== undefined) {
+                                    runThroughTime = calcTimeOffset(perfTime, item['Custom RunThrough Offset']);
+                                } else {
+                                    // Calculate optimal run-through time if no custom value
+                                    // Each routine takes about 5 min to perform, run-through needs 15 min
+                                    const baseRunThroughMinutes = 60; // Start with 1 hour before as baseline
+                                    runThroughTime = calcOptimalRunThroughTime(perfTime, items, baseRunThroughMinutes);
+                                }
                                 
                                 // Props indicator
                                 const hasProps = item.Props.toLowerCase().includes('yes');
@@ -2020,17 +2074,31 @@
                         
                         // Calculate arrival and run-through times
                         const perfTime = item['Est. Performance Time'];
-                        const arrivalTime = calcTimeOffset(perfTime, -150); // 2 hours and 30 minutes before
                         
-                        // Calculate optimal run-through time
-                        // Find the time for run-through that doesn't conflict with other performances
-                        const baseRunThroughMinutes = 60; // Start with 1 hour before as baseline
-                        const runThroughTime = calcOptimalRunThroughTime(perfTime, items, baseRunThroughMinutes);
+                        // Check if there's a custom arrival offset
+                        let arrivalTime;
+                        if (item['Custom Arrival Offset'] !== undefined) {
+                            arrivalTime = calcTimeOffset(perfTime, item['Custom Arrival Offset']);
+                        } else {
+                            arrivalTime = calcTimeOffset(perfTime, -150); // Default: 2 hours and 30 minutes before
+                        }
                         
+                        // Check if there's a custom run-through offset
+                        let runThroughTime;
+                        if (item['Custom RunThrough Offset'] !== undefined) {
+                            runThroughTime = calcTimeOffset(perfTime, item['Custom RunThrough Offset']);
+                        } else {
+                            // Calculate optimal run-through time if no custom value
+                            const baseRunThroughMinutes = 60; // Start with 1 hour before as baseline
+                            runThroughTime = calcOptimalRunThroughTime(perfTime, items, baseRunThroughMinutes);
+                        }
                         // Props indicator
                         const hasProps = item.Props.toLowerCase().includes('yes');
                         const propsClass = hasProps ? 'props-yes' : 'props-no';
                         const propsText = hasProps ? 'Yes' : 'No';
+                        
+                        // Check if this is an award entry
+                        const isAwardEntry = activityType.includes('award');
                         
                         html += `
                             <tr class="${rowClass}">
@@ -2040,8 +2108,13 @@
                                 <td data-label="Category">${item.Category}</td>
                                 <td data-label="Dancers">${item['Dancer Names']}</td>
                                 <td data-label="Props"><span class="props-indicator ${propsClass}">${propsText}</span></td>
-                                <td class="time-column arrival-time" data-label="Arrival">${arrivalTime}</td>
-                                <td class="time-column run-through-time" data-label="Run-Through">${runThroughTime}</td>
+                                ${isAwardEntry ?
+                                    `<td class="time-column" data-label="Arrival">-</td>
+                                    <td class="time-column" data-label="Run-Through">-</td>`
+                                    :
+                                    `<td class="time-column arrival-time" data-label="Arrival">${arrivalTime}</td>
+                                    <td class="time-column run-through-time" data-label="Run-Through">${runThroughTime}</td>`
+                                }
                             </tr>
                         `;
                     });
@@ -2099,30 +2172,76 @@ let isEditMode = false;
 let originalScheduleData = null;
 let modifiedEntries = [];
 
-// Function to toggle edit mode
-function toggleEditMode() {
-    isEditMode = !isEditMode;
+// Password protection
+// ==========================================
+// CONFIGURATION: CHANGE THE PASSWORD HERE
+// ==========================================
+const EDIT_PASSWORD = "DanceSchedule2025"; // Set your girlfriend's password here
+// This is the only line you need to change to update the password
+
+// Function to check password (simplified for demonstration)
+function validatePassword() {
+    const passwordInput = document.getElementById('edit-password');
+    const errorMessage = document.getElementById('password-error');
+    const password = passwordInput.value;
+    
+    if (password === EDIT_PASSWORD) {
+        // Password correct, close modal and enter edit mode
+        document.getElementById('password-modal').style.display = 'none';
+        enterEditMode();
+    } else {
+        // Password incorrect, show error
+        errorMessage.textContent = "Incorrect password. Please try again.";
+        errorMessage.classList.add('visible');
+        passwordInput.focus();
+    }
+}
+
+// Function to show password modal
+function showPasswordModal() {
+    const modal = document.getElementById('password-modal');
+    const passwordInput = document.getElementById('edit-password');
+    const errorMessage = document.getElementById('password-error');
+    
+    // Reset password field and error
+    passwordInput.value = '';
+    errorMessage.classList.remove('visible');
+    
+    // Show modal
+    modal.style.display = 'block';
+    passwordInput.focus();
+}
+
+
+// Function to enter edit mode
+function enterEditMode() {
+    isEditMode = true;
     const editModeBtn = document.getElementById('toggle-edit-mode');
     const editControls = document.getElementById('edit-controls');
     
-    // Toggle button text and appearance
+    // Update UI
+    editModeBtn.innerHTML = '<i class="fas fa-edit"></i> Exit Edit Mode';
+    document.body.classList.add('edit-mode');
+    editControls.classList.add('active');
+    
+    // Backup original schedule data
+    originalScheduleData = JSON.parse(JSON.stringify(scheduleData));
+    
+    // Make performance time cells editable
+    makeTimeFieldsEditable();
+    
+    // Reset modification tracking
+    modifiedEntries = [];
+}
+
+// Function to toggle edit mode
+function toggleEditMode() {
     if (isEditMode) {
-        // Enter edit mode
-        editModeBtn.innerHTML = '<i class="fas fa-edit"></i> Exit Edit Mode';
-        document.body.classList.add('edit-mode');
-        editControls.classList.add('active');
-        
-        // Backup original schedule data
-        originalScheduleData = JSON.parse(JSON.stringify(scheduleData));
-        
-        // Make performance time cells editable
-        makeTimeFieldsEditable();
-        
-        // Reset modification tracking
-        modifiedEntries = [];
-    } else {
-        // Exit edit mode
+        // Already in edit mode, exit
         exitEditMode(false); // Don't save changes
+    } else {
+        // Not in edit mode, show password modal
+        showPasswordModal();
     }
 }
 
@@ -2150,55 +2269,69 @@ function exitEditMode(saveChanges) {
 function makeTimeFieldsEditable() {
     // Wait for DOM to be updated
     setTimeout(() => {
-        // Select all performance time cells
-        const timeCells = document.querySelectorAll('.schedule-table td.performance-time');
+        // Select all arrival and run-through time cells
+        const arrivalCells = document.querySelectorAll('.schedule-table td.arrival-time');
+        const runThroughCells = document.querySelectorAll('.schedule-table td.run-through-time');
         
-        timeCells.forEach(cell => {
-            // Add editable class
-            cell.classList.add('editable-cell');
-            
-            // Add click handler
-            cell.addEventListener('click', function() {
-                if (!isEditMode) return;
-                
-                const currentTime = this.textContent.trim();
-                
-                // Create input field
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = currentTime;
-                input.className = 'time-input';
-                input.pattern = '(1[0-2]|0?[1-9]):[0-5][0-9] (AM|PM)';
-                input.title = 'Enter time in format: 10:30 AM';
-                
-                // Replace cell content with input
-                this.innerHTML = '';
-                this.appendChild(input);
-                input.focus();
-                
-                // Get row data for tracking changes
-                const row = this.closest('tr');
-                const routineNumber = row.querySelector('td[data-label="Routine #"]').textContent.trim();
-                
-                // Handle input events
-                input.addEventListener('blur', function() {
-                    finishEditing(cell, input, routineNumber);
-                });
-                
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        finishEditing(cell, input, routineNumber);
-                    } else if (e.key === 'Escape') {
-                        cell.innerHTML = currentTime;
-                    }
-                });
-            });
+        // Make arrival times editable
+        arrivalCells.forEach(cell => {
+            makeTimeEditable(cell, 'arrival');
+        });
+        
+        // Make run-through times editable
+        runThroughCells.forEach(cell => {
+            makeTimeEditable(cell, 'run-through');
         });
     }, 200);
 }
 
-// Function to finish editing a cell
-function finishEditing(cell, input, routineNumber) {
+// Function to make a specific time cell editable
+function makeTimeEditable(cell, timeType) {
+    // Add editable class
+    cell.classList.add('editable-cell');
+    
+    // Add click handler
+    cell.addEventListener('click', function() {
+        if (!isEditMode) return;
+        
+        const currentTime = this.textContent.trim();
+        
+        // Create input field
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentTime;
+        input.className = 'time-input';
+        input.pattern = '(1[0-2]|0?[1-9]):[0-5][0-9] (AM|PM)';
+        input.title = 'Enter time in format: 10:30 AM';
+        
+        // Replace cell content with input
+        this.innerHTML = '';
+        this.appendChild(input);
+        input.focus();
+        
+        // Get row data for tracking changes
+        const row = this.closest('tr');
+        const routineNumber = row.querySelector('td[data-label="Routine #"]').textContent.trim();
+        const perfTimeCell = row.querySelector('td.performance-time');
+        const perfTime = perfTimeCell ? perfTimeCell.textContent.trim() : '';
+        
+        // Handle input events
+        input.addEventListener('blur', function() {
+            finishTimeEditing(cell, input, routineNumber, timeType, perfTime);
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                finishTimeEditing(cell, input, routineNumber, timeType, perfTime);
+            } else if (e.key === 'Escape') {
+                cell.innerHTML = currentTime;
+            }
+        });
+    });
+}
+
+// Function to finish editing a time cell
+function finishTimeEditing(cell, input, routineNumber, timeType, perfTime) {
     const newTime = input.value.trim();
     
     // Validate time format
@@ -2212,10 +2345,27 @@ function finishEditing(cell, input, routineNumber) {
     // Update cell display
     cell.innerHTML = newTime;
     
-    // Update schedule data
+    // Find the routine in the schedule data
     const entry = scheduleData.find(item => item['Routine Number'] == routineNumber);
     if (entry) {
-        entry['Est. Performance Time'] = newTime;
+        // Store the time offset for manual adjustments
+        if (timeType === 'arrival') {
+            // Calculate and store the manual offset from performance time
+            const perfTimeMinutes = convertTimeToMinutes(perfTime);
+            const arrivalTimeMinutes = convertTimeToMinutes(newTime);
+            const offsetMinutes = arrivalTimeMinutes - perfTimeMinutes;
+            
+            // Store custom arrival offset
+            entry['Custom Arrival Offset'] = offsetMinutes;
+        } else if (timeType === 'run-through') {
+            // Calculate and store the manual offset from performance time
+            const perfTimeMinutes = convertTimeToMinutes(perfTime);
+            const runThroughTimeMinutes = convertTimeToMinutes(newTime);
+            const offsetMinutes = runThroughTimeMinutes - perfTimeMinutes;
+            
+            // Store custom run-through offset
+            entry['Custom RunThrough Offset'] = offsetMinutes;
+        }
         
         // Add to modified entries list
         if (!modifiedEntries.includes(entry)) {
@@ -2256,10 +2406,34 @@ document.addEventListener('DOMContentLoaded', function() {
     window.onload = function() {
         if(existingHandlers) existingHandlers();
         
+        // Edit mode button
         document.getElementById('toggle-edit-mode').addEventListener('click', toggleEditMode);
         document.getElementById('save-changes').addEventListener('click', saveChanges);
         document.getElementById('cancel-edit').addEventListener('click', function() {
             exitEditMode(false); // Don't save changes
+        });
+        
+        // Password modal
+        document.getElementById('submit-password').addEventListener('click', validatePassword);
+        document.getElementById('cancel-password').addEventListener('click', function() {
+            document.getElementById('password-modal').style.display = 'none';
+        });
+        
+        // Allow Enter key in password field
+        document.getElementById('edit-password').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                validatePassword();
+            } else if (e.key === 'Escape') {
+                document.getElementById('password-modal').style.display = 'none';
+            }
+        });
+        
+        // Close password modal when clicking outside
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('password-modal');
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
         });
     };
 });
