@@ -157,6 +157,69 @@
             color: black;
         }
         
+        /* Edit Mode Styles */
+        .btn-edit {
+            background-color: #27ae60 !important;
+        }
+        
+        .btn-edit:hover {
+            background-color: #219653 !important;
+        }
+        
+        .btn-save {
+            background-color: #e74c3c !important;
+        }
+        
+        .btn-save:hover {
+            background-color: #c0392b !important;
+        }
+        
+        .editable-cell {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .edit-mode .editable-cell:hover {
+            background-color: rgba(255, 255, 0, 0.2);
+        }
+        
+        .edit-mode .editable-cell:hover::after {
+            content: "✏️";
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            font-size: 12px;
+        }
+        
+        .time-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .edit-controls {
+            display: none;
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .edit-controls.active {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .edit-message {
+            flex-grow: 1;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
         .print-options {
             display: flex;
             flex-wrap: wrap;
@@ -694,7 +757,22 @@
                 <button class="btn-print" id="export-pdf">
                     <i class="fas fa-file-pdf"></i> Export PDF/Print
                 </button>
+                
+                <button class="btn-edit" id="toggle-edit-mode">
+                    <i class="fas fa-edit"></i> Edit Schedule
+                </button>
             </div>
+        </div>
+
+        <!-- Edit Controls -->
+        <div class="edit-controls" id="edit-controls">
+            <div class="edit-message">Edit Mode: Click on performance times to edit them</div>
+            <button id="save-changes" class="btn-save">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <button id="cancel-edit" class="btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </button>
         </div>
 
         <!-- PDF Print Options Modal -->
@@ -2016,8 +2094,177 @@
 // Store calculated run-through times to avoid conflicts
 const scheduledRunThroughs = [];
 
+// Time editing functionality
+let isEditMode = false;
+let originalScheduleData = null;
+let modifiedEntries = [];
+
+// Function to toggle edit mode
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    const editModeBtn = document.getElementById('toggle-edit-mode');
+    const editControls = document.getElementById('edit-controls');
+    
+    // Toggle button text and appearance
+    if (isEditMode) {
+        // Enter edit mode
+        editModeBtn.innerHTML = '<i class="fas fa-edit"></i> Exit Edit Mode';
+        document.body.classList.add('edit-mode');
+        editControls.classList.add('active');
+        
+        // Backup original schedule data
+        originalScheduleData = JSON.parse(JSON.stringify(scheduleData));
+        
+        // Make performance time cells editable
+        makeTimeFieldsEditable();
+        
+        // Reset modification tracking
+        modifiedEntries = [];
+    } else {
+        // Exit edit mode
+        exitEditMode(false); // Don't save changes
+    }
+}
+
+// Function to exit edit mode
+function exitEditMode(saveChanges) {
+    // Update UI
+    const editModeBtn = document.getElementById('toggle-edit-mode');
+    editModeBtn.innerHTML = '<i class="fas fa-edit"></i> Edit Schedule';
+    document.body.classList.remove('edit-mode');
+    document.getElementById('edit-controls').classList.remove('active');
+    
+    // If not saving, restore original data
+    if (!saveChanges && originalScheduleData) {
+        scheduleData = originalScheduleData;
+        updateScheduleView(); // Refresh the view
+    }
+    
+    // Reset state
+    isEditMode = false;
+    originalScheduleData = null;
+    modifiedEntries = [];
+}
+
+// Function to make time fields editable
+function makeTimeFieldsEditable() {
+    // Wait for DOM to be updated
+    setTimeout(() => {
+        // Select all performance time cells
+        const timeCells = document.querySelectorAll('.schedule-table td.performance-time');
+        
+        timeCells.forEach(cell => {
+            // Add editable class
+            cell.classList.add('editable-cell');
+            
+            // Add click handler
+            cell.addEventListener('click', function() {
+                if (!isEditMode) return;
+                
+                const currentTime = this.textContent.trim();
+                
+                // Create input field
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = currentTime;
+                input.className = 'time-input';
+                input.pattern = '(1[0-2]|0?[1-9]):[0-5][0-9] (AM|PM)';
+                input.title = 'Enter time in format: 10:30 AM';
+                
+                // Replace cell content with input
+                this.innerHTML = '';
+                this.appendChild(input);
+                input.focus();
+                
+                // Get row data for tracking changes
+                const row = this.closest('tr');
+                const routineNumber = row.querySelector('td[data-label="Routine #"]').textContent.trim();
+                
+                // Handle input events
+                input.addEventListener('blur', function() {
+                    finishEditing(cell, input, routineNumber);
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        finishEditing(cell, input, routineNumber);
+                    } else if (e.key === 'Escape') {
+                        cell.innerHTML = currentTime;
+                    }
+                });
+            });
+        });
+    }, 200);
+}
+
+// Function to finish editing a cell
+function finishEditing(cell, input, routineNumber) {
+    const newTime = input.value.trim();
+    
+    // Validate time format
+    const timePattern = /(1[0-2]|0?[1-9]):[0-5][0-9] (AM|PM)/;
+    if (!timePattern.test(newTime)) {
+        alert('Please enter time in format: 10:30 AM');
+        input.focus();
+        return;
+    }
+    
+    // Update cell display
+    cell.innerHTML = newTime;
+    
+    // Update schedule data
+    const entry = scheduleData.find(item => item['Routine Number'] == routineNumber);
+    if (entry) {
+        entry['Est. Performance Time'] = newTime;
+        
+        // Add to modified entries list
+        if (!modifiedEntries.includes(entry)) {
+            modifiedEntries.push(entry);
+        }
+        
+        // Update the status message
+        const statusMsg = document.getElementById('status-message');
+        statusMsg.textContent = `Modified ${modifiedEntries.length} schedule entries. Click Save to apply changes.`;
+    }
+}
+
+// Function to save all changes
+function saveChanges() {
+    if (modifiedEntries.length === 0) {
+        alert('No changes to save');
+        return;
+    }
+    
+    // In a real application, this would send data to a server
+    // For this demo, we'll just show a success message
+    alert(`Successfully saved ${modifiedEntries.length} schedule changes!`);
+    
+    // Exit edit mode
+    exitEditMode(true); // Save changes
+    
+    // Update status message
+    const statusMsg = document.getElementById('status-message');
+    statusMsg.textContent = `Schedule updated successfully! (${modifiedEntries.length} changes saved)`;
+    
+    // Force recalculation of all times
+    updateScheduleView();
+}
+
+// Add event listeners for edit functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const existingHandlers = window.onload;
+    window.onload = function() {
+        if(existingHandlers) existingHandlers();
+        
+        document.getElementById('toggle-edit-mode').addEventListener('click', toggleEditMode);
+        document.getElementById('save-changes').addEventListener('click', saveChanges);
+        document.getElementById('cancel-edit').addEventListener('click', function() {
+            exitEditMode(false); // Don't save changes
+        });
+    };
+});
+
 // Function to calculate optimal run-through time based on performance schedule
-        // Function to calculate optimal run-through time based on performance schedule
         function calcOptimalRunThroughTime(perfTime, allItems, baseMinutesBefore) {
             // Convert performance time to minutes for calculations
             const perfTimeMinutes = convertTimeToMinutes(perfTime);
