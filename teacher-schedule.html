@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Schedule View</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #3a3a3a;
+            --secondary-color: #1976d2;
+            --background-color: #ffffff;
+            --light-gray: #f5f5f5;
+            --border-color: #e0e0e0;
+            --highlight-color: #f0f7ff;
+            --award-color: #7b1fa2;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--primary-color);
+            background-color: var(--background-color);
+            padding-bottom: 2rem;
+        }
+        
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        header {
+            background-color: white;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: nowrap;
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            background-color: var(--light-gray);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .tab.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        /* Schedule Content */
+        .schedule-section {
+            display: none;
+            margin-bottom: 2rem;
+        }
+        
+        .schedule-section.active {
+            display: block;
+        }
+        
+        .day-title {
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Entry Types */
+        .entry {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+        
+        /* Arrival & Stretch Entries */
+        .arrival-entry {
+            display: flex;
+            border-left: 3px solid #4caf50;
+        }
+        
+        .time-column {
+            flex: 0 0 100px;
+            font-weight: 700;
+        }
+        
+        .description-column {
+            flex: 1;
+        }
+        
+        /* Run-Thru Entries */
+        .run-thru-entry {
+            display: flex;
+            background-color: var(--light-gray);
+            border-left: 3px solid #2196f3;
+        }
+        
+        /* Performance Entries */
+        .performance-entry {
+            padding: 0.75rem;
+            border-left: 3px solid #ff9800;
+        }
+        
+        .performance-time {
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+        
+        .routine-number {
+            font-weight: 700;
+        }
+        
+        .routine-title {
+            font-weight: 700;
+        }
+        
+        .category {
+            font-style: italic;
+            margin: 0 0.25rem;
+        }
+        
+        /* Group Entries - similar to performance with different styling */
+        .group-entry {
+            padding: 0.75rem;
+            border-left: 3px solid #9c27b0;
+        }
+        
+        /* Rehearsals & Awards */
+        .rehearsal-entry {
+            padding: 0.75rem;
+            text-align: center;
+            background-color: var(--light-gray);
+        }
+        
+        .award-entry {
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 700;
+            color: var(--award-color);
+            background-color: var(--highlight-color);
+        }
+        
+        /* Back to Top */
+        .back-to-top {
+            display: block;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .tab {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .time-column {
+                flex: 0 0 80px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.25rem;
+            }
+            
+            .tabs {
+                flex-wrap: nowrap;
+            }
+            
+            .tab {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+                flex: 0 0 auto;
+                min-width: 80px;
+            }
+            
+            .arrival-entry, .run-thru-entry {
+                flex-direction: column;
+            }
+            
+            .time-column {
+                margin-bottom: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Competition Schedule</h1>
+            <div class="tabs">
+                <button class="tab active" data-day="friday">Friday</button>
+                <button class="tab" data-day="saturday">Saturday</button>
+                <button class="tab" data-day="sunday">Sunday</button>
+                <button class="tab" data-day="full">Full Schedule</button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <!-- Friday Schedule -->
+        <section id="friday-schedule" class="schedule-section active">
+            <h2 class="day-title">Friday Schedule</h2>
+            
+            <!-- Example of Arrival Entry -->
+            <div class="entry arrival-entry">
+                <div class="time-column">{{TIME}}</div>
+                <div class="description-column">{{PERFORMER_NAME}} arrive with hair & makeup done to do full stretch & warm up</div>
+            </div>
+            
+            <!-- Example of Run-Thru Entry -->
+            <div class="entry run-thru-entry">
+                <div class="time-column">{{TIME}}</div>
+                <div class="description-column">{{ROUTINE_TITLE}} Run-Through</div>
+            </div>
+            
+            <!-- Example of Performance Entry -->
+            <div class="entry performance-entry">
+                <span class="performance-time">{{TIME}}</span>
+                <span class="routine-number">#{{NUMBER}}</span>
+                <span class="routine-title">{{TITLE}}</span>
+                <span class="category">{{CATEGORY}}</span> - 
+                <span class="performer">{{PERFORMER_NAME}}</span>
+            </div>
+            
+            <!-- Example of Group Dance Entry -->
+            <div class="entry group-entry">
+                <span class="performance-time">{{TIME}}</span>
+                <span class="routine-number">#{{NUMBER}}</span>
+                <span class="routine-title">{{TITLE}}</span>
+                <span class="category">{{CATEGORY}}</span> - 
+                <span class="group-name">{{GROUP_NAME}}</span>
+            </div>
+            
+            <!-- Example of Rehearsal Entry -->
+            <div class="entry rehearsal-entry">
+                {{TIME}} - Group Rehearsals
+            </div>
+            
+            <!-- Example of Award Entry -->
+            <div class="entry award-entry">
+                {{TIME}} - {{AWARD_CEREMONY}}
+            </div>
+            
+            <a href="#" class="back-to-top">Back to Top</a>
+        </section>
+        
+        <!-- Saturday Schedule -->
+        <section id="saturday-schedule" class="schedule-section">
+            <h2 class="day-title">Saturday Schedule</h2>
+            
+            <!-- Placeholder content with similar structure to Friday but different entries -->
+            <div class="entry arrival-entry">
+                <div class="time-column">{{TIME}}</div>
+                <div class="description-column">{{PERFORMER_NAME}} arrive with hair & makeup done to do full stretch & warm up</div>
+            </div>
+            
+            <div class="entry run-thru-entry">
+                <div class="time-column">{{TIME}}</div>
+                <div class="description-column">{{ROUTINE_TITLE}} Run-Through</div>
+            </div>
+            
+            <div class="entry performance-entry">
+                <span class="performance-time">{{TIME}}</span>
+                <span class="routine-number">#{{NUMBER}}</span>
+                <span class="routine-title">{{TITLE}}</span>
+                <span class="category">{{CATEGORY}}</span> - 
+                <span class="performer">{{PERFORMER_NAME}}</span>
+            </div>
+            
+            <div class="entry award-entry">
+                {{TIME}} - {{AWARD_CEREMONY}}
+            </div>
+            
+            <a href="#" class="back-to-top">Back to Top</a>
+        </section>
+        
+        <!-- Sunday Schedule -->
+        <section id="sunday-schedule" class="schedule-section">
+            <h2 class="day-title">Sunday Schedule</h2>
+            
+            <!-- Placeholder content with similar structure -->
+            <div class="entry arrival-entry">
+                <div class="time-column">{{TIME}}</div>
+                <div class="description-column">{{PERFORMER_NAME}} arrive with hair & makeup done to do full stretch & warm up</div>
+            </div>
+            
+            <div class="entry performance-entry">
+                <span class="performance-time">{{TIME}}</span>
+                <span class="routine-number">#{{NUMBER}}</span>
+                <span class="routine-title">{{TITLE}}</span>
+                <span class="category">{{CATEGORY}}</span> - 
+                <span class="performer">{{PERFORMER_NAME}}</span>
+            </div>
+            
+            <div class="entry award-entry">
+                {{TIME}} - {{AWARD_CEREMONY}}
+            </div>
+            
+            <a href="#" class="back-to-top">Back to Top</a>
+        </section>
+        
+        <!-- Full Schedule -->
+        <section id="full-schedule" class="schedule-section">
+            <h2 class="day-title">Full Competition Schedule</h2>
+            
+            <!-- Friday -->
+            <h3 class="day-title">Friday</h3>
+            
+            <div class="entry arrival-entry">
+                <div class="time-column">{{TIME}}</div>
+                <div class="description-column">{{PERFORMER_NAME}} arrive with hair & makeup done to do full stretch & warm up</div>
+            </div>
+            
+            <div class="entry performance-entry">
+                <span class="performance-time">{{TIME}}</span>
+                <span class="routine-number">#{{NUMBER}}</span>
+                <span class="routine-title">{{TITLE}}</span>
+                <span class="category">{{CATEGORY}}</span> - 
+                <span class="performer">{{PERFORMER_NAME}}</span>
+            </div>
+            
+            <!-- Saturday -->
+            <h3 class="day-title">Saturday</h3>
+            
+            <div class="entry arrival-entry">
+                <div class="time-column">{{TIME}}</div>
+                <div class="description-column">{{PERFORMER_NAME}} arrive with hair & makeup done to do full stretch & warm up</div>
+            </div>
+            
+            <div class="entry performance-entry">
+                <span class="performance-time">{{TIME}}</span>
+                <span class="routine-number">#{{NUMBER}}</span>
+                <span class="routine-title">{{TITLE}}</span>
+                <span class="category">{{CATEGORY}}</span> - 
+                <span class="performer">{{PERFORMER_NAME}}</span>
+            </div>
+            
+            <!-- Sunday -->
+            <h3 class="day-title">Sunday</h3>
+            
+            <div class="entry arrival-entry">
+                <div class="time-column">{{TIME}}</div>
+                <div class="description-column">{{PERFORMER_NAME}} arrive with hair & makeup done to do full stretch & warm up</div>
+            </div>
+            
+            <div class="entry performance-entry">
+                <span class="performance-time">{{TIME}}</span>
+                <span class="routine-number">#{{NUMBER}}</span>
+                <span class="routine-title">{{TITLE}}</span>
+                <span class="category">{{CATEGORY}}</span> - 
+                <span class="performer">{{PERFORMER_NAME}}</span>
+            </div>
+            
+            <a href="#" class="back-to-top">Back to Top</a>
+        </section>
+    </main>
+    
+    <!-- Tab functionality script -->
+    <script>
+        // Basic tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const scheduleSections = document.querySelectorAll('.schedule-section');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all schedule sections
+                    scheduleSections.forEach(section => section.classList.remove('active'));
+                    
+                    // Show the selected schedule section
+                    const day = this.getAttribute('data-day');
+                    document.getElementById(`${day}-schedule`).classList.add('active');
+                });
+            });
+            
+            // Back to top functionality
+            const backToTopLinks = document.querySelectorAll('.back-to-top');
+            backToTopLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+    
+    <!-- Schedule data processing script -->
+    <script src="teacher-schedule.js"></script>
+</body>
+</html>
