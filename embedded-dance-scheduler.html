@@ -2013,7 +2013,10 @@
             
             return `${newHour}:${newMinute.toString().padStart(2, '0')} ${newAmPm}`;
         }
+// Store calculated run-through times to avoid conflicts
+const scheduledRunThroughs = [];
 
+// Function to calculate optimal run-through time based on performance schedule
         // Function to calculate optimal run-through time based on performance schedule
         function calcOptimalRunThroughTime(perfTime, allItems, baseMinutesBefore) {
             // Convert performance time to minutes for calculations
@@ -2030,13 +2033,14 @@
             // Find the index of the current performance
             const currentIndex = sortedItems.findIndex(item => item['Est. Performance Time'] === perfTime);
             
-            // Function to check if a given run-through time would conflict with any performances
+            // Function to check if a given run-through time would conflict with any performances or other run-throughs
             const hasConflict = (runThroughMin) => {
                 // Each performance takes about 5 minutes, each run-through needs 15 minutes
                 const runThroughStart = runThroughMin;
                 const runThroughEnd = runThroughMin + 15; // 15 min for run-through
                 
-                return sortedItems.some((item, index) => {
+                // Check conflicts with performances
+                const performanceConflict = sortedItems.some((item, index) => {
                     // Skip checking against self
                     if (index === currentIndex) return false;
                     
@@ -2046,14 +2050,25 @@
                     // Check if run-through overlaps with this performance
                     return (runThroughStart < itemPerfEnd && runThroughEnd > itemPerfTime);
                 });
+                
+                if (performanceConflict) return true;
+                
+                // Check conflicts with other scheduled run-throughs
+                return scheduledRunThroughs.some(existingRunThrough => {
+                    const existingStart = existingRunThrough;
+                    const existingEnd = existingRunThrough + 15; // 15 min duration
+                    
+                    // Check for overlap
+                    return (runThroughStart < existingEnd && runThroughEnd > existingStart);
+                });
             };
             
             // If the initial proposed time conflicts, search for a better time
             if (hasConflict(runThroughMinutes)) {
-                // Try earlier times first in 5-minute increments, up to 30 minutes earlier
-                for (let offset = 5; offset <= 30; offset += 5) {
+                // Try earlier times first in 5-minute increments, up to 60 minutes earlier
+                for (let offset = 5; offset <= 60; offset += 5) {
                     const earlierTime = runThroughMinutes - offset;
-                    if (earlierTime >= perfTimeMinutes - 90 && !hasConflict(earlierTime)) { // Don't go more than 90 min before
+                    if (earlierTime >= perfTimeMinutes - 120 && !hasConflict(earlierTime)) { // Don't go more than 2 hours before
                         runThroughMinutes = earlierTime;
                         break;
                     }
@@ -2066,11 +2081,21 @@
                     }
                 }
                 
-                // If still conflicting, just use 30 minutes before as fallback
+                // If still conflicting, search through a wider range
                 if (hasConflict(runThroughMinutes)) {
-                    runThroughMinutes = perfTimeMinutes - 30;
+                    // Try even earlier times if necessary
+                    for (let minutes = 65; minutes <= 120; minutes += 5) {
+                        const time = perfTimeMinutes - minutes;
+                        if (!hasConflict(time)) {
+                            runThroughMinutes = time;
+                            break;
+                        }
+                    }
                 }
             }
+            
+            // Add this run-through to the scheduled list to avoid future conflicts
+            scheduledRunThroughs.push(runThroughMinutes);
             
             // Convert back to time string
             let newHour24 = Math.floor(runThroughMinutes / 60);
