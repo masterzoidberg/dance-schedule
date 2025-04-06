@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denise Wall Dance Energy - Competition Schedule</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-color: #8e44ad;
+            --secondary-color: #3498db;
+            --light-color: #f5f5f5;
+            --dark-color: #333;
+            --success-color: #2ecc71;
+            --warning-color: #e67e22;
+            --highlight-color: #FFF9C4;
+            --solo-color: #e3f2fd;
+            --duo-trio-color: #e8f5e9;
+            --group-color: #f9f0ff;
+            --awards-color: #fff8e1;
+            --workshop-color: #e0f7fa;
+            --meeting-color: #f3e5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3, h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        header h1 {
+            margin-bottom: 0.25rem;
+            font-size: 1.8rem;
+        }
+        
+        header h2 {
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header .location-dates {
+            font-size: 1rem;
+            color: var(--dark-color);
+            margin-top: 0.5rem;
+        }
+        
+        /* Controls Styles */
+        .controls {
+            background-color: white;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .controls select, .controls button {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        
+        .controls select {
+            min-width: 200px;
+            flex-grow: 1;
+        }
+        
+        .controls button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .controls button:hover {
+            background-color: #7d3c98;
+        }
+        
+        .btn-print {
+            background-color: var(--secondary-color) !important;
+        }
+        
+        .btn-print:hover {
+            background-color: #2980b9 !important;
+        }
+        
+        /* Tabs Styles */
+        .day-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .day-tab {
+            padding: 0.75rem 1.5rem;
+            background-color: #e0e0e0;
+            color: var(--dark-color);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        
+        .day-tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Quick Reference Styles */
+        .quick-reference {
+            background-color: var(--highlight-color);
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .quick-reference h3 {
+            color: var(--warning-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-reference p {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        /* Legend Styles */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        /* Schedule Table Styles */
+        .schedule-container {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+        
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .schedule-table th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        .schedule-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .schedule-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        /* Special row styles */
+        .schedule-table tr.solo-routine {
+            background-color: var(--solo-color);
+        }
+        
+        .schedule-table tr.duo-trio-routine {
+            background-color: var(--duo-trio-color);
+        }
+        
+        .schedule-table tr.group-routine {
+            background-color: var(--group-color);
+        }
+        
+        .schedule-table tr.awards {
+            background-color: var(--awards-color);
+            font-weight: bold;
+        }
+        
+        .schedule-table tr.workshop {
+            background-color: var(--workshop-color);
+        }
+        
+        .schedule-table tr.meeting {
+            background-color: var(--meeting-color);
+        }
+        
+        /* Highlight the selected dancer's performances */
+        .schedule-table tr.highlighted-dancer {
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        /* Time columns styling */
+        .time-column {
+            white-space: nowrap;
+            font-weight: bold;
+        }
+        
+        .arrival-time {
+            color: var(--warning-color);
+        }
+        
+        .run-through-time {
+            color: var(--secondary-color);
+        }
+        
+        .performance-time {
+            color: var(--primary-color);
+        }
+        
+        /* Props indicator */
+        .props-indicator {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .props-yes {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .props-no {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        /* Time instructions */
+        .time-instructions {
+            background-color: white;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .time-instructions h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .time-instructions ul {
+            padding-left: 1.5rem;
+        }
+        
+        .time-instructions li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Loading indicator */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        /* Status message */
+        .status {
+            background-color: var(--success-color);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        /* Footer Styles */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Container for the main content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .day-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .schedule-table th, .schedule-table td {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .time-instructions h3 {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .controls, .day-tabs, .legend, .status {
+                display: none;
+            }
+            
+            header, footer {
+                text-align: center;
+                padding: 0.5rem;
+                margin: 0;
+            }
+            
+            .container {
+                padding: 0;
+                max-width: 100%;
+            }
+            
+            .schedule-container {
+                overflow-x: visible;
+            }
+            
+            .schedule-table {
+                font-size: 10pt;
+                width: 100%;
+                box-shadow: none;
+            }
+            
+            .schedule-table th, .schedule-table td {
+                padding: 3pt;
+            }
+            
+            body {
+                background-color: white;
+            }
+            
+            .quick-reference {
+                border: 1px solid #ddd;
+                background-color: white;
+                padding: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .time-instructions {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Denise Wall Dance Energy</h1>
+        <h2>Hollywood Vibe Competition Schedule</h2>
+        <div class="location-dates">
+            <p>April 11-13, 2025 | Hilton Norfolk</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="status" id="status-message">
+            Schedule data loaded successfully!
+        </div>
+        
+        <div class="controls">
+            <select id="dancer-filter">
+                <option value="all">All Dancers</option>
+                <!-- Dancer options will be populated by JavaScript -->
+            </select>
+            
+            <select id="activity-filter">
+                <option value="all">All Activities</option>
+                <option value="Performance">Performances Only</option>
+                <option value="Workshop">Workshops Only</option>
+                <option value="Meeting">Meetings Only</option>
+                <option value="Award">Awards Only</option>
+            </select>
+            
+            <button class="btn-print" onclick="window.print()">
+                <i class="fas fa-print"></i> Print Schedule
+            </button>
+        </div>
+        
+        <div class="time-instructions">
+            <h3>Schedule Timing Information</h3>
+            <ul>
+                <li><strong>Arrival Time:</strong> Please arrive 2 hours before performance time with hair and makeup done, ready to stretch and warm up.</li>
+                <li><strong>Run-through Time:</strong> Your routine will be run through 45 minutes before performance time.</li>
+                <li><strong>Props:</strong> If your routine requires props, please have them ready at run-through time.</li>
+                <li><strong>Multiple Performances:</strong> If you have multiple performances in a session, stay prepared between routines.</li>
+            </ul>
+        </div>
+        
+        <div class="day-tabs">
+            <!-- Day tabs will be populated by JavaScript -->
+        </div>
+        
+        <div id="quick-ref" class="quick-reference">
+            <!-- Quick Reference information will be populated by JavaScript -->
+        </div>
+        
+        <div class="legend">
+            <!-- Legend will be populated by JavaScript -->
+        </div>
+        
+        <div id="schedule-view">
+            <div class="loading">Loading schedule data...</div>
+            <!-- Schedule tables will be populated by JavaScript -->
+        </div>
+    </div>
+    
+    <footer>
+        <p>Denise Wall Dance Energy</p>
+        <p>Phone: (757) 555-1234 | Email: info@denisewallsdanceenergy.com</p>
+        <p>Studio Address: 123 Dance Street, Virginia Beach, VA 23456</p>
+    </footer>
+
+    <script>
+        // This is the embedded schedule data directly from the JSON file
+        const scheduleData = [
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+    "Est. Performance Time": "8:36 AM",
+    "Routine Number": 35,
+    "Routine Name": "The Stranded",
+    "Category": "Pre-Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Paisley Reich",
+    "Choreographer": "Travis Wall",
+    "Props": "Yes, Small Prop",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+    "Est. Performance Time": "8:44 AM",
+    "Routine Number": 38,
+    "Routine Name": "So Broken",
+    "Category": "Pre-Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Keringtyn Spencer",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+    "Est. Performance Time": "8:53 AM",
+    "Routine Number": 41,
+    "Routine Name": "Rework",
+    "Category": "Pre-Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Anna Doebert",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+    "Est. Performance Time": "9:01 AM",
+    "Routine Number": 44,
+    "Routine Name": "Hold Your Breath",
+    "Category": "Pre-Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Anna Oddo",
+    "Choreographer": "Cami Walton",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+    "Est. Performance Time": "9:10 AM",
+    "Routine Number": 47,
+    "Routine Name": "Like Water",
+    "Category": "Pre-Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Emma Ford",
+    "Choreographer": "Cami Walton",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+    "Est. Performance Time": "9:18 AM",
+    "Routine Number": 50,
+    "Routine Name": "Misty",
+    "Category": "Pre-Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Elara Zamani",
+    "Choreographer": "Sydni Manley",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+    "Est. Performance Time": "9:27 AM",
+    "Routine Number": 53,
+    "Routine Name": "Please I Have Only This",
+    "Category": "Pre-Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Charleigh Reich",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+    "Est. Performance Time": "9:33 AM",
+    "Routine Number": 55,
+    "Routine Name": "Cologne",
+    "Category": "Pre-Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Lily Anna King",
+    "Choreographer": "Karly Gillespie",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "SENIOR SOLO COMPETITION",
+    "Est. Performance Time": "1:15 PM",
+    "Routine Number": 117,
+    "Routine Name": "Don't Walk Away",
+    "Category": "Senior Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Casey  Mckenna",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "SENIOR SOLO COMPETITION",
+    "Est. Performance Time": "1:35 PM",
+    "Routine Number": 124,
+    "Routine Name": "Hannah Tba",
+    "Category": "Senior Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Hannah White",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "SENIOR SOLO COMPETITION",
+    "Est. Performance Time": "1:55 PM",
+    "Routine Number": 131,
+    "Routine Name": "This New Space",
+    "Category": "Senior Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Lila Kai Ashley",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "SENIOR SOLO COMPETITION",
+    "Est. Performance Time": "2:20 PM",
+    "Routine Number": 140,
+    "Routine Name": "The First Time",
+    "Category": "Senior Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Jaslyn Proctor",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "SENIOR SOLO COMPETITION",
+    "Est. Performance Time": "2:43 PM",
+    "Routine Number": 148,
+    "Routine Name": "I Might Say Something Stupid",
+    "Category": "Senior Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Ava Lee Kaufman",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "SENIOR SOLO COMPETITION",
+    "Est. Performance Time": "3:03 PM",
+    "Routine Number": 155,
+    "Routine Name": "Nothing",
+    "Category": "Senior Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Ellen Grace Olansen",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "SENIOR SOLO COMPETITION",
+    "Est. Performance Time": "3:17 PM",
+    "Routine Number": 160,
+    "Routine Name": "I Gotta Find Peace Of Mind",
+    "Category": "Senior Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Myla Smith",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "SENIOR SOLO COMPETITION",
+    "Est. Performance Time": "3:45 PM",
+    "Routine Number": 170,
+    "Routine Name": "Poinciana",
+    "Category": "Senior Solo Tap",
+    "Num Dancers": 1,
+    "Dancer Names": "Caroline Sison",
+    "Choreographer": "Anthony Morigerato",
+    "Props": "Yes, Big Props",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "TEEN SOLO + SR DUO/TRIO + SR SM GROUP COMPETITION",
+    "Est. Performance Time": "7:05 PM",
+    "Routine Number": 224,
+    "Routine Name": "O God Protect Me",
+    "Category": "Teen Solo Contemporary",
+    "Num Dancers": 1,
+    "Dancer Names": "Lulu Gandia",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "TEEN SOLO + SR DUO/TRIO + SR SM GROUP COMPETITION",
+    "Est. Performance Time": "9:26 PM",
+    "Routine Number": 273,
+    "Routine Name": "Begin The Beguine",
+    "Category": "Senior Small Group Tap",
+    "Num Dancers": 9,
+    "Dancer Names": "Lila Kai Ashley, Lulu Gandia, Ava Lee Kaufman, Casey  Mckenna, Ellen Grace Olansen, Jaslyn Proctor, Caroline Sison, Myla Smith, Hannah White",
+    "Choreographer": "Anthony Morigerato",
+    "Props": "Yes, Big Props",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "TEEN SOLO + SR DUO/TRIO + SR SM GROUP COMPETITION",
+    "Est. Performance Time": "9:45 PM",
+    "Routine Number": 279,
+    "Routine Name": "Zombie",
+    "Category": "Senior Small Group Contemporary",
+    "Num Dancers": 9,
+    "Dancer Names": "Lila Kai Ashley, Lulu Gandia, Ava Lee Kaufman, Casey  Mckenna, Ellen Grace Olansen, Jaslyn Proctor, Caroline Sison, Myla Smith, Hannah White",
+    "Choreographer": "Travis Wall",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Friday",
+    "Date": "4/11/2025",
+    "Competition Session": "TEEN SOLO + SR DUO/TRIO + SR SM GROUP COMPETITION",
+    "Est. Performance Time": "10:15 PM",
+    "Routine Number": 289,
+    "Routine Name": "Heaven I Know",
+    "Category": "Senior Small Group Lyrical",
+    "Num Dancers": 9,
+    "Dancer Names": "Lila Kai Ashley, Lulu Gandia, Ava Lee Kaufman, Casey  Mckenna, Ellen Grace Olansen, Jaslyn Proctor, Caroline Sison, Myla Smith, Hannah White",
+    "Choreographer": "Cami Walton",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "2:59 PM",
+    "Routine Number": 299,
+    "Routine Name": "Dance With Me",
+    "Category": "Junior Small Group Jazz",
+    "Num Dancers": 6,
+    "Dancer Names": "Matilda Brown, Zaedith Ghacham, Clara Nigbur, Victoria Rodriguez, Khloe Taylor, Ryatt Weinberg",
+    "Choreographer": "Cami Walton",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "3:20 PM",
+    "Routine Number": 306,
+    "Routine Name": "A Petite Suite",
+    "Category": "Junior Small Group Ballet/Pointe",
+    "Num Dancers": 6,
+    "Dancer Names": "Matilda Brown, Zaedith Ghacham, Clara Nigbur, Victoria Rodriguez, Khloe Taylor, Ryatt Weinberg",
+    "Choreographer": "Aimee McElroy",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "3:39 PM",
+    "Routine Number": 312,
+    "Routine Name": "Infectious Boogie",
+    "Category": "Junior Small Group Hip Hop",
+    "Num Dancers": 6,
+    "Dancer Names": "Matilda Brown, Zaedith Ghacham, Clara Nigbur, Victoria Rodriguez, Khloe Taylor, Ryatt Weinberg",
+    "Choreographer": "Khyre Dean",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "3:45 PM",
+    "Routine Number": 314,
+    "Routine Name": "The Way That You Love Me",
+    "Category": "Pre-Teen Small Group Jazz",
+    "Num Dancers": 8,
+    "Dancer Names": "Anna Doebert, Emma Ford, Lily Anna King, Anna Oddo, Charleigh Reich, Paisley Reich, Keringtyn Spencer, Elara Zamani",
+    "Choreographer": "Cami Walton",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "4:03 PM",
+    "Routine Number": 320,
+    "Routine Name": "L'apres-Midi",
+    "Category": "Pre-Teen Small Group Ballet/Pointe",
+    "Num Dancers": 8,
+    "Dancer Names": "Anna Doebert, Emma Ford, Lily Anna King, Anna Oddo, Charleigh Reich, Paisley Reich, Keringtyn Spencer, Elara Zamani",
+    "Choreographer": "Aimee McElroy",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "4:28 PM",
+    "Routine Number": 328,
+    "Routine Name": "News Of The Fall",
+    "Category": "Pre-Teen Small Group Contemporary",
+    "Num Dancers": 9,
+    "Dancer Names": "Anna Doebert, Emma Ford, Lulu Gandia, Lily Anna King, Anna Oddo, Charleigh Reich, Paisley Reich, Keringtyn Spencer, Elara Zamani",
+    "Choreographer": "Travis Wall",
+    "Props": "Yes, Big Props",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "4:47 PM",
+    "Routine Number": 334,
+    "Routine Name": "Billy Boy",
+    "Category": "Pre-Teen Small Group Tap",
+    "Num Dancers": 8,
+    "Dancer Names": "Anna Doebert, Emma Ford, Lily Anna King, Anna Oddo, Charleigh Reich, Paisley Reich, Keringtyn Spencer, Elara Zamani",
+    "Choreographer": "Anthony Morigerato",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "5:10 PM",
+    "Routine Number": 341,
+    "Routine Name": "Bounce Out",
+    "Category": "Pre-Teen Small Group Hip Hop",
+    "Num Dancers": 8,
+    "Dancer Names": "Anna Doebert, Emma Ford, Lily Anna King, Anna Oddo, Charleigh Reich, Paisley Reich, Keringtyn Spencer, Elara Zamani",
+    "Choreographer": "Julika Cuffy",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+    "Est. Performance Time": "5:30 PM",
+    "Routine Number": 347,
+    "Routine Name": "Wild Horses",
+    "Category": "Pre-Teen Small Group Lyrical",
+    "Num Dancers": 9,
+    "Dancer Names": "Anna Doebert, Emma Ford, Lulu Gandia, Lily Anna King, Anna Oddo, Charleigh Reich, Paisley Reich, Keringtyn Spencer, Elara Zamani",
+    "Choreographer": "Cami Walton",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "TEEN/SENIOR COMPETITION",
+    "Est. Performance Time": "8:06 PM",
+    "Routine Number": 377,
+    "Routine Name": "Heaven's Gates",
+    "Category": "Teen Large Group Jazz",
+    "Num Dancers": 13,
+    "Dancer Names": "Lila Kai Ashley, Anna Doebert, Lulu Gandia, Ava Lee Kaufman, Casey  Mckenna, Ellen Grace Olansen, Jaslyn Proctor, Charleigh Reich, Paisley Reich, Caroline Sison, Myla Smith, Keringtyn Spencer, Hannah White",
+    "Choreographer": "Will Loftis",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "TEEN/SENIOR COMPETITION",
+    "Est. Performance Time": "8:26 PM",
+    "Routine Number": 383,
+    "Routine Name": "Grande Waltz",
+    "Category": "Teen Large Group Ballet/Pointe",
+    "Num Dancers": 12,
+    "Dancer Names": "Lila Kai Ashley, Anna Doebert, Lulu Gandia, Ava Lee Kaufman, Casey  Mckenna, Ellen Grace Olansen, Jaslyn Proctor, Charleigh Reich, Caroline Sison, Myla Smith, Keringtyn Spencer, Hannah White",
+    "Choreographer": "Aimee McElroy",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "TEEN/SENIOR COMPETITION",
+    "Est. Performance Time": "8:47 PM",
+    "Routine Number": 389,
+    "Routine Name": "Live From Mars",
+    "Category": "Teen Line Hip Hop",
+    "Num Dancers": 17,
+    "Dancer Names": "Lila Kai Ashley, Anna Doebert, Emma Ford, Lulu Gandia, Ava Lee Kaufman, Lily Anna King, Casey  Mckenna, Anna Oddo, Ellen Grace Olansen, Jaslyn Proctor, Charleigh Reich, Paisley Reich, Caroline Sison, Myla Smith, Keringtyn Spencer, Hannah White, Elara Zamani",
+    "Choreographer": "Xavier Tu",
+    "Props": "Yes, Big Props",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  },
+  {
+    "Day": "Saturday",
+    "Date": "4/12/2025",
+    "Competition Session": "TEEN/SENIOR COMPETITION",
+    "Est. Performance Time": "9:50 PM",
+    "Routine Number": 407,
+    "Routine Name": "Express Yourself",
+    "Category": "Teen Line Jazz",
+    "Num Dancers": 17,
+    "Dancer Names": "Lila Kai Ashley, Anna Doebert, Emma Ford, Lulu Gandia, Ava Lee Kaufman, Lily Anna King, Casey  Mckenna, Anna Oddo, Ellen Grace Olansen, Jaslyn Proctor, Charleigh Reich, Paisley Reich, Caroline Sison, Myla Smith, Keringtyn Spencer, Hannah White, Elara Zamani",
+    "Choreographer": "Cami Walton",
+    "Props": "No",
+    "Activity Type": "Performance",
+    "Studio Arrival Time": "",
+    "Studio Warm-up Time": "",
+    "Studio Run-through Time": "",
+    "Studio Notes": ""
+  }
+];
+
+        // Initialize the schedule after data is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Process dancer names from dancers.js
+            processDancerNames();
+            
+            // Initialize the schedule display
+            initializeSchedule();
+        });
+
+        // Function to initialize the schedule display
+        function initializeSchedule() {
+            // Extract unique days from schedule data
+            const days = [...new Set(scheduleData.map(item => item.Day))];
+            
+            // Populate day tabs
+            const dayTabsContainer = document.querySelector('.day-tabs');
+            days.forEach((day, index) => {
+                const tab = document.createElement('button');
+                tab.className = 'day-tab' + (index === 0 ? ' active' : '');
+                tab.textContent = day;
+                tab.onclick = () => switchDay(day);
+                dayTabsContainer.appendChild(tab);
+            });
+            
+            // Create legend
+            createLegend();
+            
+            // Show first day by default
+            if (days.length > 0) {
+                switchDay(days[0]);
+            }
+            
+            // Setup event listeners for filters
+            document.getElementById('dancer-filter').addEventListener('change', updateScheduleView);
+            document.getElementById('activity-filter').addEventListener('change', updateScheduleView);
+        }
+        
+        // Function to create the legend
+        function createLegend() {
+            const legendContainer = document.querySelector('.legend');
+            legendContainer.innerHTML = ''; // Clear existing content
+            
+            const legendItems = [
+                { name: 'Solo', color: 'var(--solo-color)' },
+                { name: 'Duo/Trio', color: 'var(--duo-trio-color)' },
+                { name: 'Group', color: 'var(--group-color)' },
+                { name: 'Awards', color: 'var(--awards-color)' },
+                { name: 'Workshop', color: 'var(--workshop-color)' },
+                { name: 'Meeting', color: 'var(--meeting-color)' }
+            ];
+            
+            legendItems.forEach(item => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                
+                const colorBox = document.createElement('span');
+                colorBox.className = 'legend-color';
+                colorBox.style.backgroundColor = item.color;
+                
+                const label = document.createElement('span');
+                label.textContent = item.name;
+                
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legendContainer.appendChild(legendItem);
+            });
+        }
+        
+        // Function to switch between days
+        function switchDay(day) {
+            // Update active tab
+            document.querySelectorAll('.day-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent === day);
+            });
+            
+            // Update quick reference
+            updateQuickReference(day);
+            
+            // Update schedule view
+            updateScheduleView();
+        }
+        
+        // Function to update quick reference info
+        function updateQuickReference(day) {
+            const dayData = scheduleData.filter(item => item.Day === day);
+            const quickRef = document.getElementById('quick-ref');
+            
+            if (dayData.length > 0) {
+                const date = dayData[0].Date;
+                const sessions = [...new Set(dayData.map(item => item['Competition Session']))];
+                
+                let html = `<h3>${day}, ${date} - Quick Reference</h3>`;
+                html += '<p><strong>Competition Sessions:</strong></p>';
+                sessions.forEach(session => {
+                    html += `<p>• ${session}</p>`;
+                });
+                
+                quickRef.innerHTML = html;
+                quickRef.style.display = 'block';
+            } else {
+                quickRef.style.display = 'none';
+            }
+        }
+        
+        // Function to update the schedule view based on filters
+        function updateScheduleView() {
+            const scheduleView = document.getElementById('schedule-view');
+            
+            // Get current filters
+            const selectedDay = document.querySelector('.day-tab.active').textContent;
+            const selectedDancer = document.getElementById('dancer-filter').value;
+            const selectedActivity = document.getElementById('activity-filter').value;
+            
+            // Filter data
+            let filteredData = scheduleData.filter(item => item.Day === selectedDay);
+            
+            if (selectedDancer !== 'all') {
+                filteredData = filteredData.filter(item =>
+                    item['Dancer Names'] && item['Dancer Names'].includes(selectedDancer)
+                );
+            }
+            
+            if (selectedActivity !== 'all') {
+                filteredData = filteredData.filter(item =>
+                    item['Activity Type'] && item['Activity Type'].includes(selectedActivity)
+                );
+            }
+            
+            // Group by competition session
+            const sessions = {};
+            filteredData.forEach(item => {
+                const session = item['Competition Session'];
+                if (!sessions[session]) {
+                    sessions[session] = [];
+                }
+                sessions[session].push(item);
+            });
+            
+            // Create HTML for schedule tables
+            let html = '';
+            
+            if (Object.keys(sessions).length === 0) {
+                html = '<div class="no-results">No activities match your filter criteria.</div>';
+            } else {
+                Object.entries(sessions).forEach(([session, items]) => {
+                    html += `
+                        <h3>${session}</h3>
+                        <div class="schedule-container">
+                            <table class="schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Routine #</th>
+                                        <th>Routine Name</th>
+                                        <th>Category</th>
+                                        <th>Dancers</th>
+                                        <th>Props</th>
+                                        <th>Arrival</th>
+                                        <th>Run-Through</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    items.forEach(item => {
+                        // Determine row class
+                        let rowClass = '';
+                        const category = item.Category.toLowerCase();
+                        const activityType = item['Activity Type'].toLowerCase();
+                        
+                        if (activityType === 'workshop') rowClass = 'workshop';
+                        else if (activityType === 'meeting') rowClass = 'meeting';
+                        else if (activityType.includes('award')) rowClass = 'awards';
+                        else if (category.includes('solo')) rowClass = 'solo-routine';
+                        else if (category.includes('duo') || category.includes('trio')) rowClass = 'duo-trio-routine';
+                        else rowClass = 'group-routine';
+                        
+                        // Add highlighted class if this dancer is selected
+                        if (selectedDancer !== 'all' && item['Dancer Names'].includes(selectedDancer)) {
+                            rowClass += ' highlighted-dancer';
+                        }
+                        
+                        // Calculate arrival and run-through times
+                        const perfTime = item['Est. Performance Time'];
+                        const arrivalTime = calcTimeOffset(perfTime, -120); // 2 hours before
+                        const runThroughTime = calcTimeOffset(perfTime, -45); // 45 min before
+                        
+                        // Props indicator
+                        const hasProps = item.Props.toLowerCase().includes('yes');
+                        const propsClass = hasProps ? 'props-yes' : 'props-no';
+                        const propsText = hasProps ? 'Yes' : 'No';
+                        
+                        html += `
+                            <tr class="${rowClass}">
+                                <td class="time-column performance-time">${perfTime}</td>
+                                <td>${item['Routine Number']}</td>
+                                <td>${item['Routine Name']}</td>
+                                <td>${item.Category}</td>
+                                <td>${item['Dancer Names']}</td>
+                                <td><span class="props-indicator ${propsClass}">${propsText}</span></td>
+                                <td class="time-column arrival-time">${arrivalTime}</td>
+                                <td class="time-column run-through-time">${runThroughTime}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                });
+            }
+            
+            scheduleView.innerHTML = html;
+        }
+        
+        // Helper function to calculate time offset (in minutes) and round to nearest quarter hour
+        function calcTimeOffset(timeStr, offsetMinutes) {
+            const [hourStr, minuteStr] = timeStr.split(':');
+            const hour = parseInt(hourStr);
+            const minute = parseInt(minuteStr);
+            
+            // Extract AM/PM
+            const ampm = minuteStr.includes('AM') ? 'AM' : 'PM';
+            
+            // Calculate base hour in 24-hour format
+            let hour24 = hour;
+            if (ampm === 'PM' && hour !== 12) hour24 += 12;
+            if (ampm === 'AM' && hour === 12) hour24 = 0;
+            
+            // Calculate total minutes since midnight
+            let totalMinutes = hour24 * 60 + minute + offsetMinutes;
+            
+            // Make sure we stay within a day (0-1439 minutes)
+            while (totalMinutes < 0) totalMinutes += 24 * 60;
+            totalMinutes = totalMinutes % (24 * 60);
+            
+            // Round to nearest 15 minutes (quarter hour)
+            totalMinutes = Math.round(totalMinutes / 15) * 15;
+            
+            // Convert back to 12-hour format
+            const newHour24 = Math.floor(totalMinutes / 60);
+            let newHour = newHour24 % 12;
+            if (newHour === 0) newHour = 12;
+            
+            const newMinute = totalMinutes % 60;
+            const newAmPm = newHour24 < 12 ? 'AM' : 'PM';
+            
+            return `${newHour}:${newMinute.toString().padStart(2, '0')} ${newAmPm}`;
+        }
+</script>
+<script src="dancers.js"></script>
+</body>
+</html>
