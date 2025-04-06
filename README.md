@@ -13,13 +13,29 @@ A responsive web application for dance studios to manage and display competition
 
 ## Files
 
-- `embedded-dance-scheduler.html` - Main application file with embedded schedule data
+- `index.html` - Main application file with embedded schedule data
 - `dancers.js` - JavaScript module for processing dancer information
 - `dancer-schedule.json` - Schedule data in JSON format
 
+## GitHub Pages
+
+This application is deployed on GitHub Pages at:
+[https://masterzoidberg.github.io/dance-schedule/](https://masterzoidberg.github.io/dance-schedule/)
+
+### Setting up GitHub Pages
+
+To enable GitHub Pages for this repository:
+
+1. Go to the repository on GitHub
+2. Click on "Settings"
+3. Scroll down to the "GitHub Pages" section
+4. Under "Source", select "master branch"
+5. Click "Save"
+6. The site will be published at https://[username].github.io/dance-schedule/
+
 ## Usage
 
-1. Open `embedded-dance-scheduler.html` in a web browser
+1. Visit the GitHub Pages URL or open `index.html` in a web browser
 2. Use the dropdown menus to filter by dancer or activity type
 3. Click on day tabs to navigate between competition days
 4. Use the print button to generate a printable schedule
