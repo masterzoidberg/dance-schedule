@@ -45,6 +45,49 @@ function getDanceScheduleData() {
             "Choreographer": "",
             "Props": "",
             "Activity Type": "Award"
+        },
+        // Additional award ceremonies for completeness
+        {
+            "Day": "Friday",
+            "Date": "4/11/2025",
+            "Competition Session": "JR/PRE-TEEN SOLO + PRE-TEEN/TEEN DUO/TRIO COMPETITION",
+            "Est. Performance Time": "11:00 PM",
+            "Routine Number": null,
+            "Routine Name": "TEEN SOLO & TEEN/SENIOR SMALL GROUP AWARDS",
+            "Category": "Awards",
+            "Num Dancers": null,
+            "Dancer Names": "",
+            "Choreographer": "",
+            "Props": "",
+            "Activity Type": "Award"
+        },
+        {
+            "Day": "Saturday",
+            "Date": "4/12/2025",
+            "Competition Session": "MINI/JR/PRE-TEEN COMPETITION",
+            "Est. Performance Time": "6:30 PM",
+            "Routine Number": null,
+            "Routine Name": "MINI, JUNIOR, & PRE-TEEN GROUP AWARDS",
+            "Category": "Awards",
+            "Num Dancers": null,
+            "Dancer Names": "",
+            "Choreographer": "",
+            "Props": "",
+            "Activity Type": "Award"
+        },
+        {
+            "Day": "Sunday",
+            "Date": "4/13/2025",
+            "Competition Session": "AWARDS CEREMONY",
+            "Est. Performance Time": "10:00 AM",
+            "Routine Number": null,
+            "Routine Name": "Junior & Pre-Teen Awards",
+            "Category": "Awards",
+            "Num Dancers": null,
+            "Dancer Names": "",
+            "Choreographer": "",
+            "Props": "",
+            "Activity Type": "Award"
         }
         // Note: In actual implementation, this would contain all entries
     ];
@@ -249,6 +292,11 @@ function populateScheduleTable(day, entries) {
     
     // Track current session
     let currentSession = null;
+    // Track if we need to add special awards section
+    let hasAddedAwards = {};
+    
+    // First pass: collect all awards for special handling
+    const awards = entries.filter(entry => entry.type === 'award');
     
     // Add rows for each entry
     entries.forEach(entry => {
@@ -265,6 +313,16 @@ function populateScheduleTable(day, entries) {
             tableBody.appendChild(row);
             
             currentSession = entry.title;
+            
+            // Check if we need to add an AWARDS CEREMONY header after this session
+            const hasAwardsForThisSession = awards.some(award =>
+                award.title.toUpperCase().includes(currentSession.split(' ')[0]) || // Check for session type in award title
+                (currentSession.includes('SOLO') && award.title.toUpperCase().includes('SOLO'))
+            );
+            
+            if (hasAwardsForThisSession && !hasAddedAwards[currentSession]) {
+                hasAddedAwards[currentSession] = true;
+            }
         } else {
             // Create a regular entry row
             const row = document.createElement('tr');
